@@ -96,7 +96,6 @@ class GAlign(NetworkAlignmentModel):
         source_A_hat, target_A_hat, source_feats, target_feats = self.get_elements()
         print("Running Multi-level embedding")
         GAlign = self.multi_level_embed(source_A_hat, target_A_hat, source_feats, target_feats)
-        print("Running Refinement Alignment")
         source_A_hat = source_A_hat.to_dense()
         target_A_hat = target_A_hat.to_dense()
         GAlign_S = self.refine(GAlign, source_A_hat, target_A_hat, 0.94)
@@ -171,11 +170,7 @@ class GAlign(NetworkAlignmentModel):
         return GAlign
 
 
-    def refinement_alignment(self, GAlign, source_A_hat, target_A_hat):
-        source_A_hat = source_A_hat.to_dense()
-        target_A_hat = target_A_hat.to_dense()
-        GAlign_S = self.refine(GAlign, source_A_hat, target_A_hat, 0.94)
-        return GAlign_S
+
 
 
     def get_elements(self):
@@ -238,21 +233,6 @@ class GAlign(NetworkAlignmentModel):
         return self.GAlign_S
 
 
-    def get_similarity_matrices(self, source_outputs, target_outputs):
-        """
-        Construct Similarity matrix in each layer
-        :params source_outputs: List of embedding at each layer of source graph
-        :params target_outputs: List of embedding at each layer of target graph
-        """
-        list_S = []
-        for i in range(3):
-            source_output_i = source_outputs[len(source_outputs)-1]
-            target_output_i = target_outputs[len(source_outputs)-1]
-            S = torch.mm(F.normalize(source_output_i), F.normalize(target_output_i).t())
-            list_S.append(S)
-        return list_S
-
-
     def log_and_evaluate(self, embedding_model, refinement_model, source_A_hat, target_A_hat):
         embedding_model.eval()
         source_outputs = embedding_model(refinement_model(source_A_hat, 's'), 's')
@@ -262,32 +242,3 @@ class GAlign(NetworkAlignmentModel):
         print(self.alphas)
         print(log)
         return source_outputs, target_outputs
-    
-
-    def get_candidate(self, source_outputs, target_outputs, threshold):
-        List_S = self.get_similarity_matrices(source_outputs, target_outputs)[1:]
-        source_candidates = []
-        target_candidates = []
-        count_true_candidates = 0
-        if len(List_S) < 2:
-            print("The current model doesn't support refinement for number of GCN layer smaller than 2")
-            return torch.LongTensor(source_candidates), torch.LongTensor(target_candidates)
-
-        num_source_nodes = len(self.source_dataset.G.nodes())
-        num_target_nodes = len(self.target_dataset.G.nodes())
-        for i in range(min(num_source_nodes, num_target_nodes)):
-            node_i_is_stable = True
-            for j in range(len(List_S)):
-                if List_S[j][i].argmax() != List_S[j-1][i].argmax() or List_S[j][i].max() < threshold:
-                    node_i_is_stable = False 
-                    break
-            if node_i_is_stable:
-                tg_candi = List_S[-1][i].argmax()
-                source_candidates.append(i)
-                target_candidates.append(tg_candi)
-                try:
-                    if self.full_dict[i] == tg_candi:
-                        count_true_candidates += 1
-                except:
-                    continue
-        return torch.LongTensor(source_candidates), torch.LongTensor(target_candidates), len(source_candidates), count_true_candidates

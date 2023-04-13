@@ -1,35 +1,6 @@
-from algorithms.PALE.loss import EmbeddingLossFunctions
 import numpy as np
 import torch
 
-
-def one_layer_shallow_loss(output, edges, n_nodes):
-    loss_model = EmbeddingLossFunctions()
-    count = 0
-    total_loss = 0
-    for j in range(0, len(edges), 512):
-        s_output = output[edges[j:j+512, 0]]
-        t_output = output[edges[j:j+512, 1]]
-        n_output = output[n_nodes[count]]
-        count += 1
-        loss_j = loss_model.loss(s_output, t_output, n_output)[0] / len(edges)
-        total_loss += loss_j
-    return total_loss
-
-def shallow_loss(outputs, edges, n_nodes):
-    loss_model = EmbeddingLossFunctions()
-
-    count = 0
-    losses = [0 for i in range(len(outputs))]
-    for j in range(0, len(edges), 512):
-        s_outputs = [outputs[i][edges[j:j+512, 0]] for i in range(len(outputs))]
-        t_outputs = [outputs[i][edges[j:j+512, 1]] for i in range(len(outputs))]
-        n_outputs = [outputs[i][n_nodes[count]] for i in range(len(outputs))]
-        count += 1
-        loss = [loss_model.loss(s_outputs[i], t_outputs[i], n_outputs[i])[0]/len(edges) for i in range(len(n_outputs))]
-        losses = [losses[i] + loss[i] for i in range(len(loss))]
-
-    return losses
         
 def mapping_loss(source, target, gt_train):
     source_train_nodes = torch.LongTensor(np.array(list(gt_train.keys()))).cuda()
