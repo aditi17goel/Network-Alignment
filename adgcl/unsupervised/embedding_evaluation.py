@@ -81,7 +81,7 @@ class EmbeddingEvaluation():
 			'multioutputclassifier__estimator__C': [1e-1, 1e0, 1e1, 1e2]}
 		self.classifier = make_pipeline(StandardScaler(), MultiOutputClassifier(
 			self.base_classifier, n_jobs=-1))
-		
+
 		if np.isnan(train_y).any():
 			print("Has NaNs ... ignoring them")
 			train_y = np.nan_to_num(train_y)
@@ -145,7 +145,7 @@ class EmbeddingEvaluation():
 		kf_test = []
 
 		kf = KFold(n_splits=folds, shuffle=True, random_state=None)
-		
+
 		for k_id, (train_val_index, test_index) in enumerate(kf.split(dataset)):
 			test_dataset = [dataset[int(i)] for i in list(test_index)]
 			train_index, val_index = train_test_split(train_val_index, test_size=0.2, random_state=None)

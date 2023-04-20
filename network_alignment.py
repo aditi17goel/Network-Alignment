@@ -27,7 +27,7 @@ def parse_args():
     parser.add_argument('--target_dataset', default="dataspace/douban/offline/graphsage/")
     parser.add_argument('--groundtruth',    default="dataspace/douban/dictionaries/groundtruth")
     parser.add_argument('--seed',           default=123,    type=int)
-    subparsers = parser.add_subparsers(dest="algorithm", help='Choose 1 of the algorithm from: IsoRank, FINAL, UniAlign, NAWAL, DeepLink, REGAL, IONE, PALE')    
+    subparsers = parser.add_subparsers(dest="algorithm", help='Choose 1 of the algorithm from: IsoRank, FINAL, UniAlign, NAWAL, DeepLink, REGAL, IONE, PALE')
 
 
     # GAlign
@@ -74,9 +74,9 @@ if __name__ == '__main__':
     model = GInfoMinMax(
         TUEncoder(num_dataset_features=1, emb_dim=32, num_gc_layers=5, drop_ratio=0.0, pooling_type='standard'),
         32).to(device)
-    
+
     model_optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
-    
+
     evaluator = TUEvaluator()
 
     view_learner = ViewLearner(TUEncoder(num_dataset_features=1, emb_dim=32, num_gc_layers=5, drop_ratio=0.0, pooling_type='standard'),

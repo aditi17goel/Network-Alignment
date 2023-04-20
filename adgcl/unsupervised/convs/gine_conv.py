@@ -5,9 +5,15 @@ import torch.nn.functional as F
 from torch import Tensor
 from torch_geometric.nn.conv import MessagePassing
 from torch_geometric.typing import OptPairTensor, Adj, OptTensor, Size
+<<<<<<< HEAD
 
 
 from adgcl.unsupervised.convs.inits import reset
+=======
+from torch_sparse import SparseTensor
+
+from unsupervised.convs.inits import reset
+>>>>>>> bdb1bbc6852af23c46f2580d74b7bb1d90af60c5
 
 
 class GINEConv(MessagePassing):
@@ -37,7 +43,12 @@ class GINEConv(MessagePassing):
         if isinstance(edge_index, Tensor):
             assert edge_attr is not None
             assert x[0].size(-1) == edge_attr.size(-1)
+<<<<<<< HEAD
 
+=======
+        elif isinstance(edge_index, SparseTensor):
+            assert x[0].size(-1) == edge_index.size(-1)
+>>>>>>> bdb1bbc6852af23c46f2580d74b7bb1d90af60c5
 
         # propagate_type: (x: OptPairTensor, edge_attr: OptTensor)
         out = self.propagate(edge_index, x=x, edge_attr=edge_attr, edge_weight=edge_weight, size=size)
