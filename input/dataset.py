@@ -29,6 +29,9 @@ class Dataset:
         print("Dataset info:")
         print("- Nodes: ", len(self.G.nodes()))
         print("- Edges: ", len(self.G.edges()))
+    
+    def __len__(self):
+        return len(self.G.nodes())
 
     def _load_G(self):
         G_data = json.load(open(os.path.join(self.data_dir, "G.json")))
